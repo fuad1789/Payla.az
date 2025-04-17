@@ -8,6 +8,12 @@ interface IListing extends Document {
   pricePerDay: number;
   owner: mongoose.Types.ObjectId;
   createdAt: Date;
+  viewCount: number;
+  contactClicks: Array<{
+    user: mongoose.Types.ObjectId;
+    timestamp: Date;
+  }>;
+  previousPrice?: number;
 }
 
 const listingSchema = new mongoose.Schema({
@@ -44,6 +50,34 @@ const listingSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  viewCount: {
+    type: Number,
+    default: 0,
+  },
+  contactClicks: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  previousPrice: {
+    type: Number,
+  },
+});
+
+// Middleware to store previous price before updating
+listingSchema.pre("save", function (next) {
+  if (this.isModified("pricePerDay")) {
+    this.previousPrice = this.pricePerDay;
+  }
+  next();
 });
 
 const Listing: Model<IListing> = mongoose.model<IListing>(

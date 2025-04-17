@@ -16,6 +16,7 @@ interface Listing {
   image: string;
   pricePerDay: number;
   owner: {
+    _id: string;
     name: string;
     email: string;
   };
@@ -103,6 +104,8 @@ export default function ListingDetailPage() {
     );
   }
 
+  const isOwner = user && listing.owner._id === user._id;
+
   return (
     <>
       <NavBar />
@@ -146,39 +149,44 @@ export default function ListingDetailPage() {
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-gray-200">
-                  {showEmail ? (
-                    <div className="space-y-4">
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <p className="text-small text-gray-500 mb-1">
-                          Owner's Email
-                        </p>
-                        <p className="text-body font-medium">{ownerEmail}</p>
-                      </div>
-                      <Link
-                        href={`mailto:${ownerEmail}`}
-                        className="btn btn-primary w-full"
-                      >
-                        Send Email
-                      </Link>
+                {isOwner ? (
+                  <Link
+                    href={`/listings/${id}/edit`}
+                    className="btn btn-primary w-full"
+                  >
+                    Edit Listing
+                  </Link>
+                ) : showEmail ? (
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <p className="text-small text-gray-500 mb-1">
+                        Owner's Email
+                      </p>
+                      <p className="text-body font-medium">{ownerEmail}</p>
                     </div>
-                  ) : (
-                    <button
-                      onClick={handleContactOwner}
+                    <Link
+                      href={`mailto:${ownerEmail}`}
                       className="btn btn-primary w-full"
-                      disabled={isContacting}
                     >
-                      {isContacting ? (
-                        <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
-                          Contacting...
-                        </div>
-                      ) : (
-                        "Contact Owner"
-                      )}
-                    </button>
-                  )}
-                </div>
+                      Send Email
+                    </Link>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleContactOwner}
+                    className="btn btn-primary w-full"
+                    disabled={isContacting}
+                  >
+                    {isContacting ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                        Contacting...
+                      </div>
+                    ) : (
+                      "Contact Owner"
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -65,6 +65,12 @@ export default function NavBar() {
             {mounted && user ? (
               <>
                 <Link
+                  href="/dashboard"
+                  className="px-6 py-2.5 bg-white text-[#1E3A8A] font-medium rounded-lg border-2 border-[#1E3A8A] hover:bg-[#1E3A8A]/5 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
+                >
+                  Dashboard
+                </Link>
+                <Link
                   href="/create-listing"
                   className="px-6 py-2.5 bg-[#1E3A8A] text-white font-medium rounded-lg hover:bg-[#1E3A8A]/90 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
                 >
@@ -105,6 +111,12 @@ export default function NavBar() {
           <div className="flex flex-col space-y-3">
             {mounted && user ? (
               <>
+                <Link
+                  href="/dashboard"
+                  className="px-6 py-2.5 bg-white text-[#1E3A8A] font-medium rounded-lg border-2 border-[#1E3A8A] hover:bg-[#1E3A8A]/5 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 text-center"
+                >
+                  Dashboard
+                </Link>
                 <Link
                   href="/create-listing"
                   className="px-6 py-2.5 bg-[#1E3A8A] text-white font-medium rounded-lg hover:bg-[#1E3A8A]/90 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 text-center"

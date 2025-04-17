@@ -150,4 +150,55 @@ router.get(
   }
 );
 
+// Update listing
+router.put(
+  "/:id",
+  isAuthenticated,
+  async (req: Request<{ id: string }>, res: Response): Promise<void> => {
+    try {
+      const listing = await Listing.findById(req.params.id);
+
+      if (!listing) {
+        res.status(404).json({
+          status: "fail",
+          message: "No listing found with that ID",
+        });
+        return;
+      }
+
+      // Check if the user is the owner of the listing
+      if (listing.owner.toString() !== req.user._id.toString()) {
+        res.status(403).json({
+          status: "fail",
+          message: "You are not authorized to update this listing",
+        });
+        return;
+      }
+
+      const updatedListing = await Listing.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        }
+      )
+        .populate("category", "name slug icon")
+        .populate("owner", "name email");
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          listing: updatedListing,
+        },
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        status: "fail",
+        message: error.message,
+      });
+    }
+  }
+);
+
 export default router;
