@@ -41,6 +41,23 @@ export default function ListingDetailPage() {
         const data = await response.json();
         if (data.status === "success") {
           setListing(data.data.listing);
+
+          // Track view if user is logged in
+          if (token) {
+            try {
+              await fetch(
+                `http://localhost:5000/api/dashboard/listings/${id}/view`,
+                {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+            } catch (error) {
+              console.error("Error tracking view:", error);
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching listing:", error);
@@ -50,7 +67,7 @@ export default function ListingDetailPage() {
     };
 
     fetchListing();
-  }, [id]);
+  }, [id, token]);
 
   const handleContactOwner = async () => {
     if (!token) {
@@ -60,6 +77,18 @@ export default function ListingDetailPage() {
 
     setIsContacting(true);
     try {
+      // First track the contact click
+      await fetch(
+        `http://localhost:5000/api/dashboard/listings/${id}/contact`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Then get the owner's email
       const response = await fetch(
         `http://localhost:5000/api/listings/${id}/owner-email`,
         {
