@@ -62,6 +62,12 @@ export default function NavBar() {
 
           {/* Desktop navigation */}
           <div className="hidden lg:flex items-center gap-4">
+            <Link
+              href="/nece-isleyir"
+              className="text-gray-600 hover:text-gray-900 font-medium"
+            >
+              Necə işləyir?
+            </Link>
             {mounted && user ? (
               <>
                 <Link
@@ -109,6 +115,12 @@ export default function NavBar() {
           } pt-4 pb-3 border-t mt-4`}
         >
           <div className="flex flex-col space-y-3">
+            <Link
+              href="/nece-isleyir"
+              className="px-6 py-2.5 text-gray-600 hover:text-gray-900 font-medium text-center"
+            >
+              Necə işləyir?
+            </Link>
             {mounted && user ? (
               <>
                 <Link

@@ -5,6 +5,22 @@ import dynamic from "next/dynamic";
 import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
 
+// Import new components
+const Hero = dynamic(() => import("./components/Hero"), { ssr: false });
+const Stats = dynamic(() => import("./components/Stats"), { ssr: false });
+const Newsletter = dynamic(() => import("./components/Newsletter"), {
+  ssr: false,
+});
+
+// Import existing components
+const NavBar = dynamic(() => import("./components/NavBar"), { ssr: false });
+const Categories = dynamic(() => import("./components/Categories"), {
+  ssr: false,
+});
+const ListingsGrid = dynamic(() => import("@/app/components/ListingsGrid"), {
+  ssr: false,
+});
+
 interface Listing {
   _id: string;
   title: string;
@@ -22,19 +38,6 @@ interface Listing {
     email: string;
   };
 }
-
-// Create a client-side only component for the navigation
-const NavBar = dynamic(() => import("./components/NavBar"), { ssr: false });
-
-// Create a client-side only component for the categories
-const Categories = dynamic(() => import("./components/Categories"), {
-  ssr: false,
-});
-
-// Create a client-side only component for the listings
-const ListingsGrid = dynamic(() => import("@/app/components/ListingsGrid"), {
-  ssr: false,
-});
 
 export default function HomePage() {
   const [listings, setListings] = useState<Listing[]>([]);
@@ -113,20 +116,32 @@ export default function HomePage() {
   return (
     <>
       <NavBar />
-      <main className="section">
-        <div className="container">
-          <Categories />
+      <main>
+        <Hero />
+        <Stats />
 
-          {listings.length > 0 ? (
-            <ListingsGrid listings={listings} />
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-body text-gray-600">
-                Hazırda mövcud elan yoxdur.
-              </p>
-            </div>
-          )}
-        </div>
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">
+              {category
+                ? `${category} kateqoriyasındakı elanlar`
+                : "Populyar Elanlar"}
+            </h2>
+            <Categories />
+
+            {listings.length > 0 ? (
+              <ListingsGrid listings={listings} />
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-body text-gray-600">
+                  Hazırda mövcud elan yoxdur.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <Newsletter />
       </main>
     </>
   );

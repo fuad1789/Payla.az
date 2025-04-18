@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from "express";
 import Listing from "../models/Listing";
 import { isAuthenticated } from "../middleware/auth";
 import { IUser } from "../models/User";
+import User from "../models/User";
 
 const router: Router = express.Router();
 
@@ -21,6 +22,38 @@ interface ListingBody {
 interface PopulatedListing extends Document {
   owner: IUser;
 }
+
+// Get global statistics
+router.get("/stats", async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const [totalListings, totalUsers, totalViews] = await Promise.all([
+      Listing.countDocuments(),
+      User.countDocuments(),
+      Listing.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalViews: { $sum: "$viewCount" },
+          },
+        },
+      ]),
+    ]);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        totalListings,
+        totalUsers,
+        totalViews: totalViews[0]?.totalViews || 0,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
 
 // Get all listings
 router.get(
