@@ -1,157 +1,216 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Listing, categories, api_services } from "@/lib/api";
 import { addToFavorites } from "@/lib/utils";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
 import { X, Heart, ArrowLeft } from "lucide-react";
 
 interface SwipeCardProps {
   listing: Listing;
   onSwipe: (liked: boolean, id: string) => void;
   showOverlay: "like" | "dislike" | null;
-  onDragX?: (x: number) => void;
 }
 
-function SwipeCard({ listing, onSwipe, showOverlay, onDragX }: SwipeCardProps) {
-  const [drag, setDrag] = useState({ x: 0, y: 0 });
+function SwipeCard({ listing, onSwipe, showOverlay }: SwipeCardProps) {
+  const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const startX = useRef<number | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [dragOverlay, setDragOverlay] = useState<"like" | "dislike" | null>(
     null
   );
-  const cardRef = useRef<HTMLDivElement>(null);
-  const category = categories.find((cat) => cat.id === listing.category);
   const imageSrc =
     listing.images && listing.images.length > 0
       ? listing.images[0]
       : "/placeholder-image.svg";
 
-  function handleDrag(event: any, info: any) {
-    setDrag({ x: info.offset.x, y: info.offset.y });
+  function handleMouseDown(e: React.MouseEvent) {
     setIsDragging(true);
-    if (onDragX) onDragX(info.offset.x);
-    if (info.offset.x > 30) setDragOverlay("like");
-    else if (info.offset.x < -30) setDragOverlay("dislike");
-    else setDragOverlay(null);
+    startX.current = e.clientX;
   }
 
-  function handleDragEnd(event: any, info: any) {
+  function handleTouchStart(e: React.TouchEvent) {
+    setIsDragging(true);
+    startX.current = e.touches[0].clientX;
+  }
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging || startX.current === null) return;
+      e.preventDefault();
+      const deltaX = e.clientX - startX.current;
+      setDragX(deltaX);
+      if (deltaX > 30) setDragOverlay("like");
+      else if (deltaX < -30) setDragOverlay("dislike");
+      else setDragOverlay(null);
+    },
+    [isDragging]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isDragging || startX.current === null) return;
+      e.preventDefault();
+      const deltaX = e.touches[0].clientX - startX.current;
+      setDragX(deltaX);
+      if (deltaX > 30) setDragOverlay("like");
+      else if (deltaX < -30) setDragOverlay("dislike");
+      else setDragOverlay(null);
+    },
+    [isDragging]
+  );
+
+  // Native event handler-lar (yalnız useEffect üçün)
+  const handleMouseMoveNative = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging || startX.current === null) return;
+      const deltaX = e.clientX - startX.current;
+      setDragX(deltaX);
+      if (deltaX > 30) setDragOverlay("like");
+      else if (deltaX < -30) setDragOverlay("dislike");
+      else setDragOverlay(null);
+    },
+    [isDragging]
+  );
+
+  const handleTouchMoveNative = useCallback(
+    (e: TouchEvent) => {
+      if (!isDragging || startX.current === null) return;
+      const deltaX = e.touches[0].clientX - startX.current;
+      setDragX(deltaX);
+      if (deltaX > 30) setDragOverlay("like");
+      else if (deltaX < -30) setDragOverlay("dislike");
+      else setDragOverlay(null);
+    },
+    [isDragging]
+  );
+
+  function handleMouseUp() {
     setIsDragging(false);
-    setDragOverlay(null);
-    if (info.offset.x > 120) onSwipe(true, listing._id);
-    else if (info.offset.x < -120) onSwipe(false, listing._id);
-    else setDrag({ x: 0, y: 0 });
-    if (onDragX) onDragX(0);
+    if (dragX > 120) {
+      setDragX(600);
+      setTimeout(() => onSwipe(true, listing._id), 350);
+    } else if (dragX < -120) {
+      setDragX(-600);
+      setTimeout(() => onSwipe(false, listing._id), 350);
+    } else {
+      setDragX(0);
+      setDragOverlay(null);
+    }
+  }
+
+  function handleTouchEnd() {
+    setIsDragging(false);
+    if (dragX > 120) {
+      setDragX(600);
+      setTimeout(() => onSwipe(true, listing._id), 350);
+    } else if (dragX < -120) {
+      setDragX(-600);
+      setTimeout(() => onSwipe(false, listing._id), 350);
+    } else {
+      setDragX(0);
+      setDragOverlay(null);
+    }
   }
 
   useEffect(() => {
-    if (!isDragging && drag.x !== 0) {
-      const timeout = setTimeout(() => setDrag({ x: 0, y: 0 }), 180);
-      return () => clearTimeout(timeout);
+    if (!isDragging) {
+      window.removeEventListener("mousemove", handleMouseMoveNative);
+      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("touchmove", handleTouchMoveNative);
+      window.removeEventListener("touchend", handleTouchEnd);
     }
-  }, [isDragging, drag.x]);
+  }, [
+    isDragging,
+    handleMouseMoveNative,
+    handleMouseUp,
+    handleTouchMoveNative,
+    handleTouchEnd,
+  ]);
+
+  // Yarım dairə effekti üçün rotate dəyəri
+  const rotate = dragX / 8;
+  const scale = isDragging ? 1.03 : dragX !== 0 ? 0.95 : 1;
+  const boxShadow =
+    isDragging || dragX !== 0
+      ? "0 12px 32px 0 rgba(0,0,0,0.18), 0 1.5px 6px 0 rgba(0,0,0,0.10)"
+      : "0 4px 16px 0 rgba(0,0,0,0.10)";
 
   return (
-    <motion.div
+    <div
       ref={cardRef}
-      className="absolute w-full h-full flex flex-col items-center justify-center"
+      className="absolute w-full h-full flex flex-col items-center justify-end cursor-grab overflow-hidden"
       style={{
-        touchAction: "pan-y",
+        transform: `translateX(${dragX}px) rotate(${rotate}deg) scale(${scale})`,
+        transition: isDragging
+          ? "none"
+          : dragX !== 0
+          ? "transform 0.5s cubic-bezier(.22,1,.36,1)"
+          : "transform 0.3s cubic-bezier(.22,1,.36,1)",
+        zIndex: 10,
         background:
-          drag.x > 30
-            ? "rgba(34,197,94,0.32)" // yaşıl
-            : drag.x < -30
-            ? "rgba(239,68,68,0.32)" // qırmızı
+          dragX > 30
+            ? "rgba(34,197,94,0.18)"
+            : dragX < -30
+            ? "rgba(239,68,68,0.18)"
             : undefined,
+        boxShadow,
       }}
-      drag="x"
-      dragElastic={0.5}
-      onDrag={handleDrag}
-      onDragEnd={handleDragEnd}
-      animate={{ x: drag.x, y: drag.y, rotate: drag.x / 20 }}
-      transition={{ type: "spring", stiffness: 180, damping: 22 }}
-      initial={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0.7, opacity: 0 }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={isDragging ? handleMouseMove : undefined}
+      onMouseUp={isDragging ? handleMouseUp : undefined}
+      onMouseLeave={isDragging ? handleMouseUp : undefined}
+      onTouchStart={handleTouchStart}
+      onTouchMove={isDragging ? handleTouchMove : undefined}
+      onTouchEnd={isDragging ? handleTouchEnd : undefined}
     >
-      <div className="relative w-full max-w-sm h-[520px] bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col">
-        <div className="relative w-full h-72">
-          <Image
-            src={imageSrc}
-            alt={listing.title}
-            fill
-            className="object-cover pointer-events-none"
-            quality={85}
-            sizes="100vw"
-            loading="lazy"
-          />
-          {(dragOverlay === "like" || showOverlay === "like") && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute top-6 left-6 z-10 pointer-events-none"
-            >
-              <span className="text-3xl font-bold text-green-500 bg-white/80 px-4 py-2 rounded-xl border-4 border-green-500 rotate-[-12deg] shadow-lg">
-                Bəyəndim
-              </span>
-            </motion.div>
-          )}
-          {(dragOverlay === "dislike" || showOverlay === "dislike") && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute top-6 right-6 z-10 pointer-events-none"
-            >
-              <span className="text-3xl font-bold text-red-500 bg-white/80 px-4 py-2 rounded-xl border-4 border-red-500 rotate-[12deg] shadow-lg">
-                Bəyənmədim
-              </span>
-            </motion.div>
-          )}
-        </div>
-        <div className="flex flex-col flex-1 p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xl">{category?.emoji}</span>
-            <span className="text-base font-medium text-gray-600">
-              {category?.name}
+      <div className="relative w-full max-w-sm h-[520px] bg-transparent rounded-2xl shadow-xl overflow-hidden flex flex-col user-select-none select-none overflow-hidden">
+        <Image
+          src={imageSrc}
+          alt="listing-image"
+          fill
+          className="object-cover pointer-events-none user-select-none select-none"
+          quality={85}
+          sizes="100vw"
+          loading="lazy"
+        />
+        {(dragOverlay === "like" || showOverlay === "like") && (
+          <div className="absolute top-6 left-6 z-10 pointer-events-none user-select-none select-none">
+            <span className="text-3xl font-bold text-green-500 bg-white/80 px-4 py-2 rounded-xl border-4 border-green-500 rotate-[-12deg] shadow-lg user-select-none select-none">
+              Bəyəndim
             </span>
           </div>
-          <h3 className="text-2xl font-bold text-gray-800 mb-2 line-clamp-2">
-            {listing.title}
-          </h3>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-primary text-lg font-bold">
-              {listing.price} ₼<span className="text-xs font-normal">/gün</span>
+        )}
+        {(dragOverlay === "dislike" || showOverlay === "dislike") && (
+          <div className="absolute top-6 right-6 z-10 pointer-events-none user-select-none select-none">
+            <span className="text-3xl font-bold text-red-500 bg-white/80 px-4 py-2 rounded-xl border-4 border-red-500 rotate-[12deg] shadow-lg user-select-none select-none">
+              Bəyənmədim
             </span>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center text-gray-500 text-sm">
-                <span className="mr-1">👁</span>
-                {listing.views}
-              </span>
-              <span className="flex items-center text-gray-500 text-sm">
-                <span className="mr-1">❤️</span>
-                {listing.contacts}
-              </span>
-            </div>
           </div>
-          <div className="mt-auto flex justify-center gap-8">
-            <button
-              className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-3xl text-red-500 shadow-md hover:bg-red-200 transition-all"
-              onClick={() => onSwipe(false, listing._id)}
-              aria-label="Bəyənmədim"
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <button
-              className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-3xl text-green-500 shadow-md hover:bg-green-200 transition-all"
-              onClick={() => onSwipe(true, listing._id)}
-              aria-label="Bəyəndim"
-            >
-              <Heart className="w-8 h-8 fill-green-500 text-green-500" />
-            </button>
+        )}
+        {/* Bəyəndim/Bəyənmədim ikonları və ortada qiymət */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex justify-center items-center gap-8 w-full z-20">
+          <button
+            className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-3xl text-red-500 shadow-md hover:bg-red-200 transition-all user-select-none select-none"
+            onClick={() => onSwipe(false, listing._id)}
+            aria-label="Bəyənmədim"
+          >
+            <X className="w-8 h-8 user-select-none select-none" />
+          </button>
+          <div className="bg-white/80 px-4 py-2 rounded-xl shadow text-lg font-bold text-primary">
+            {listing.price} ₼
           </div>
+          <button
+            className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-3xl text-green-500 shadow-md hover:bg-green-200 transition-all user-select-none select-none"
+            onClick={() => onSwipe(true, listing._id)}
+            aria-label="Bəyəndim"
+          >
+            <Heart className="w-8 h-8 fill-green-500 text-green-500 user-select-none select-none" />
+          </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -161,7 +220,6 @@ function SwipePage() {
   const [overlay, setOverlay] = useState<"like" | "dislike" | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFinished, setIsFinished] = useState(false);
-  const [dragX, setDragX] = useState(0);
 
   useEffect(function () {
     api_services.getListings(1, 100).then((data) => {
@@ -181,10 +239,6 @@ function SwipePage() {
     setTimeout(() => {
       setOverlay(null);
     }, 350);
-  }
-
-  function handleDragX(x: number) {
-    setDragX(x);
   }
 
   if (isLoading) return <div className="py-12 text-center">Yüklənir...</div>;
@@ -209,14 +263,7 @@ function SwipePage() {
   return (
     <div
       className="relative w-full min-h-screen flex flex-col items-center justify-center py-8 overflow-hidden"
-      style={{
-        background:
-          dragX > 30
-            ? "rgba(34,197,94,0.32)"
-            : dragX < -30
-            ? "rgba(239,68,68,0.32)"
-            : "#f7f8fa",
-      }}
+      style={{ background: "#f7f8fa" }}
     >
       <a
         href="/"
@@ -226,15 +273,12 @@ function SwipePage() {
         <ArrowLeft className="w-6 h-6" />
       </a>
       <div className="relative w-full max-w-sm h-[520px]">
-        <AnimatePresence mode="sync">
-          <SwipeCard
-            key={listings[current]._id}
-            listing={listings[current]}
-            onSwipe={handleSwipe}
-            showOverlay={overlay}
-            onDragX={handleDragX}
-          />
-        </AnimatePresence>
+        <SwipeCard
+          key={listings[current]._id}
+          listing={listings[current]}
+          onSwipe={handleSwipe}
+          showOverlay={overlay}
+        />
         {listings[current + 1] && (
           <Image
             src={
