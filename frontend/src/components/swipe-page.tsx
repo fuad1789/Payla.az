@@ -261,10 +261,7 @@ function SwipePage() {
     );
 
   return (
-    <div
-      className="relative w-full min-h-screen flex flex-col items-center justify-center py-8 overflow-hidden"
-      style={{ background: "#f7f8fa" }}
-    >
+    <div className="fixed inset-0 w-full h-full max-h-screen flex flex-col items-center justify-center py-8 overflow-hidden touch-none bg-[#f7f8fa]">
       <a
         href="/"
         className="fixed top-6 left-6 z-30 p-2 rounded-full bg-white/80 text-primary hover:bg-primary hover:text-white transition-colors shadow"
