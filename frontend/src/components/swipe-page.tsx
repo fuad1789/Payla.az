@@ -5,7 +5,7 @@ import { Listing, categories, api_services } from "@/lib/api";
 import { addToFavorites } from "@/lib/utils";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart } from "lucide-react";
+import { X, Heart, ArrowLeft } from "lucide-react";
 
 interface SwipeCardProps {
   listing: Listing;
@@ -17,6 +17,9 @@ interface SwipeCardProps {
 function SwipeCard({ listing, onSwipe, showOverlay, onDragX }: SwipeCardProps) {
   const [drag, setDrag] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [dragOverlay, setDragOverlay] = useState<"like" | "dislike" | null>(
+    null
+  );
   const cardRef = useRef<HTMLDivElement>(null);
   const category = categories.find((cat) => cat.id === listing.category);
   const imageSrc =
@@ -28,10 +31,14 @@ function SwipeCard({ listing, onSwipe, showOverlay, onDragX }: SwipeCardProps) {
     setDrag({ x: info.offset.x, y: info.offset.y });
     setIsDragging(true);
     if (onDragX) onDragX(info.offset.x);
+    if (info.offset.x > 30) setDragOverlay("like");
+    else if (info.offset.x < -30) setDragOverlay("dislike");
+    else setDragOverlay(null);
   }
 
   function handleDragEnd(event: any, info: any) {
     setIsDragging(false);
+    setDragOverlay(null);
     if (info.offset.x > 120) onSwipe(true, listing._id);
     else if (info.offset.x < -120) onSwipe(false, listing._id);
     else setDrag({ x: 0, y: 0 });
@@ -78,7 +85,7 @@ function SwipeCard({ listing, onSwipe, showOverlay, onDragX }: SwipeCardProps) {
             sizes="100vw"
             loading="lazy"
           />
-          {showOverlay === "like" && (
+          {(dragOverlay === "like" || showOverlay === "like") && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -89,7 +96,7 @@ function SwipeCard({ listing, onSwipe, showOverlay, onDragX }: SwipeCardProps) {
               </span>
             </motion.div>
           )}
-          {showOverlay === "dislike" && (
+          {(dragOverlay === "dislike" || showOverlay === "dislike") && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -211,6 +218,13 @@ function SwipePage() {
             : "#f7f8fa",
       }}
     >
+      <a
+        href="/"
+        className="fixed top-6 left-6 z-30 p-2 rounded-full bg-white/80 text-primary hover:bg-primary hover:text-white transition-colors shadow"
+        aria-label="Ana ekrana qayıt"
+      >
+        <ArrowLeft className="w-6 h-6" />
+      </a>
       <div className="relative w-full max-w-sm h-[520px]">
         <AnimatePresence mode="sync">
           <SwipeCard
