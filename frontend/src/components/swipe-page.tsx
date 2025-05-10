@@ -88,10 +88,10 @@ function SwipeCard({ listing, onSwipe, showOverlay }: SwipeCardProps) {
 
   function handleMouseUp() {
     setIsDragging(false);
-    if (dragX > 120) {
+    if (dragX > 30) {
       setDragX(600);
       setTimeout(() => onSwipe(true, listing._id), 350);
-    } else if (dragX < -120) {
+    } else if (dragX < -30) {
       setDragX(-600);
       setTimeout(() => onSwipe(false, listing._id), 350);
     } else {
@@ -102,10 +102,10 @@ function SwipeCard({ listing, onSwipe, showOverlay }: SwipeCardProps) {
 
   function handleTouchEnd() {
     setIsDragging(false);
-    if (dragX > 120) {
+    if (dragX > 30) {
       setDragX(600);
       setTimeout(() => onSwipe(true, listing._id), 350);
-    } else if (dragX < -120) {
+    } else if (dragX < -30) {
       setDragX(-600);
       setTimeout(() => onSwipe(false, listing._id), 350);
     } else {
@@ -258,7 +258,7 @@ function SwipePage() {
     );
 
   return (
-    <div className="fixed inset-0 w-full h-full max-h-screen flex flex-col items-center justify-end py-16 overflow-hidden touch-none bg-[#f7f8fa]">
+    <div className="fixed inset-0 w-full h-full max-h-screen flex flex-col items-center justify-start py-0 overflow-hidden touch-none bg-[#f7f8fa]">
       <a
         href="/"
         className="fixed top-6 left-6 z-30 p-2 rounded-full bg-white/80 text-primary hover:bg-primary hover:text-white transition-colors shadow"
@@ -266,7 +266,7 @@ function SwipePage() {
       >
         <ArrowLeft className="w-6 h-6" />
       </a>
-      <div className="relative w-full max-w-sm h-[520px]">
+      <div className="relative w-full max-w-sm h-[520px] mb-16 mt-auto">
         <SwipeCard
           key={listings[current]._id}
           listing={listings[current]}
@@ -289,9 +289,6 @@ function SwipePage() {
             sizes="100vw"
           />
         )}
-      </div>
-      <div className="mt-6 text-sm text-gray-500">
-        {current + 1} / {listings.length}
       </div>
     </div>
   );
