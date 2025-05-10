@@ -229,16 +229,13 @@ function SwipePage() {
   }, []);
 
   function handleSwipe(liked: boolean, id: string) {
+    setOverlay(null);
     if (current + 1 >= listings.length) setIsFinished(true);
     setCurrent((prev) => prev + 1);
-    setOverlay(liked ? "like" : "dislike");
     if (liked) {
       addToLocalStorageArray("likedItems", id);
       addToFavorites(id);
     } else addToLocalStorageArray("skippedItems", id);
-    setTimeout(() => {
-      setOverlay(null);
-    }, 350);
   }
 
   if (isLoading) return <div className="py-12 text-center">Yüklənir...</div>;
@@ -261,7 +258,7 @@ function SwipePage() {
     );
 
   return (
-    <div className="fixed inset-0 w-full h-full max-h-screen flex flex-col items-center justify-center py-8 overflow-hidden touch-none bg-[#f7f8fa]">
+    <div className="fixed inset-0 w-full h-full max-h-screen flex flex-col items-center justify-end py-16 overflow-hidden touch-none bg-[#f7f8fa]">
       <a
         href="/"
         className="fixed top-6 left-6 z-30 p-2 rounded-full bg-white/80 text-primary hover:bg-primary hover:text-white transition-colors shadow"
@@ -274,7 +271,7 @@ function SwipePage() {
           key={listings[current]._id}
           listing={listings[current]}
           onSwipe={handleSwipe}
-          showOverlay={overlay}
+          showOverlay={overlay && current < listings.length ? overlay : null}
         />
         {listings[current + 1] && (
           <Image
