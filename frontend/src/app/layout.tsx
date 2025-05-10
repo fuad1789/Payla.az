@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { SiteHeader } from "@/components/site-header";
-import { Footer } from "@/components/footer";
+import React from "react";
+import { LayoutContent } from "./layout-content";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,11 +31,7 @@ export default function RootLayout({
       <body
         className={cn(inter.className, "min-h-screen bg-[#f9fafb] antialiased")}
       >
-        <div className="relative flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
+        <LayoutContent>{children}</LayoutContent>
       </body>
     </html>
   );
