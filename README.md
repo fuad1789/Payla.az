@@ -10,6 +10,16 @@
 - 👨‍💻 Admin paneli ilə elanların idarə edilməsi
 - 📱 Tam responsiv dizayn
 - 📊 Elanlar üçün baxış və əlaqə sayğacları
+- 🆕 **Business Profiles**: Biznes profilləri əlavə etmək və idarə etmək
+- 🆕 **Swipe funksionallığı**: Elanlar arasında swipe ilə naviqasiya
+- 🆕 **SSR və RSC**: Next.js 14 App Router, React Server Components və SSR dəstəyi
+- 🆕 **Yeni UI Kitabxanaları**: Shadcn UI, Radix UI, Tailwind CSS
+- 🆕 **Error Handling**: error.tsx, not-found.tsx və global-error.tsx ilə server və client tərəfi xəta idarəetməsi
+- 🆕 **Form Validasiyası**: Zod ilə tip təhlükəsiz form validasiyası
+- 🆕 **Fayl Yükləmə və Şəkil Optimizasiyası**: WebP, lazy loading, Cloudinary inteqrasiyası
+- 🆕 **Optimistik UI və real-time yeniləmələr**
+- 🆕 **Supabase və ya digər backend inteqrasiyası üçün hazır struktur**
+- 🆕 **Yeni komponentlər və səhifələr**: admin dashboard, business profiles, swipe-page, category-filter, favorite-button, faq, how-it-works və s.
 
 ## 🛠️ Texnologiyalar
 
@@ -20,6 +30,8 @@
 - MongoDB
 - JWT Authentication
 - Multer (şəkil yükləmək üçün)
+- 🆕 Cloudinary (şəkil optimizasiyası üçün)
+- 🆕 Supabase (real-time və autentifikasiya üçün hazır struktur)
 
 ### Frontend
 
@@ -27,9 +39,15 @@
 - TypeScript
 - TailwindCSS
 - Shadcn UI
+- Radix UI
 - React Hook Form
+- Zod (form validasiyası üçün)
 - Axios
 - LocalStorage favoritlər üçün
+- 🆕 React Server Components (RSC)
+- 🆕 Error boundary və səhifə səviyyəsində error idarəetməsi
+- 🆕 Swipe və favorit funksionallığı
+- 🆕 SSR və preload pattern
 
 ## 🚀 Başlama
 
@@ -206,16 +224,19 @@ Sayt tam responsivdir və müxtəlif ölçülü ekranlarda işləyir:
 
 ## 👨‍💻 Lahiyənin texniki xüsusiyyətləri
 
-1. **Server-side rendering:** Next.js App Router ilə
-2. **Statik səhifələr:** Necə işləyir, Əlaqə səhifələri
-3. **Server komponentləri:** Elan siyahısı və detallı səhifələr
-4. **Client komponentləri:** Favorit düyməsi, Kateqoriya filtri
-5. **API sorğuları:** Axios ilə arxa plan sorğuları
+1. **Server-side rendering:** Next.js App Router və SSR
+2. **Statik səhifələr:** Necə işləyir, Əlaqə, FAQ səhifələri
+3. **Server komponentləri:** Elan siyahısı, detallı səhifələr, admin dashboard və s.
+4. **Client komponentləri:** Favorit düyməsi, Kateqoriya filtri, swipe-page və s.
+5. **API sorğuları:** Axios və ya Supabase ilə arxa plan sorğuları
 6. **JWT autentifikasiya:** Admin giriş və autentifikasiya
-7. **Statik kontentin ön yükləməsi**
-8. **Error Handling:** Server və client tərəfi xəta işləmələri
-9. **Optimistik UI yeniləmələri**
-10. **Form validasiyası:** Server və client tərəfdə
+7. **Statik kontentin ön yükləməsi və optimizasiya**
+8. **Error Handling:** error.tsx, not-found.tsx, global-error.tsx ilə xəta işləmələri
+9. **Optimistik UI və real-time yeniləmələr**
+10. **Form validasiyası:** Zod və React Hook Form ilə
+11. **Fayl yükləmə və şəkil optimizasiyası:** Cloudinary, WebP, lazy loading
+12. **Supabase və ya digər backend inteqrasiyası üçün hazır struktur**
+13. **Yeni səhifələr və komponentlər:** admin dashboard, business profiles, swipe, faq və s.
 
 ## 📄 Lisenziya
 

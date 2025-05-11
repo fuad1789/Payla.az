@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -10,7 +10,7 @@ import { Upload, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import api_services, { Listing, categories } from "@/lib/api";
+import api_services, { Listing, categories, BusinessProfile } from "@/lib/api";
 
 interface ListingFormProps {
   listing?: Listing;
@@ -25,6 +25,7 @@ interface ListingFormData {
   email: string;
   phone: string;
   isActive: boolean;
+  businessProfileId?: string | null;
 }
 
 function ListingForm({ listing, mode }: ListingFormProps) {
@@ -35,12 +36,16 @@ function ListingForm({ listing, mode }: ListingFormProps) {
     listing?.images || []
   );
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [businessProfiles, setBusinessProfiles] = useState<BusinessProfile[]>(
+    []
+  );
 
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
+    setValue,
   } = useForm<ListingFormData>({
     defaultValues: {
       title: listing?.title || "",
@@ -50,10 +55,20 @@ function ListingForm({ listing, mode }: ListingFormProps) {
       email: listing?.contactInfo?.email || "",
       phone: listing?.contactInfo?.phone || "",
       isActive: listing?.isActive !== undefined ? listing.isActive : true,
+      businessProfileId: listing?.businessProfileId || "",
     },
   });
 
+  // Business profilləri yüklə
+  useEffect(() => {
+    api_services
+      .getBusinessProfiles()
+      .then(setBusinessProfiles)
+      .catch(() => setBusinessProfiles([]));
+  }, []);
+
   const isActiveWatch = watch("isActive");
+  const businessProfileIdWatch = watch("businessProfileId");
 
   // Handle image selection
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -141,6 +156,7 @@ function ListingForm({ listing, mode }: ListingFormProps) {
         })
       );
       formData.append("isActive", data.isActive.toString());
+      formData.append("businessProfileId", data.businessProfileId || "");
 
       // Append selected files with the field name "images"
       selectedFiles.forEach((file) => {
@@ -259,6 +275,27 @@ function ListingForm({ listing, mode }: ListingFormProps) {
             {errors.category && (
               <p className="text-sm text-red-500">{errors.category.message}</p>
             )}
+          </div>
+
+          {/* Business Profile seçimi */}
+          <div className="space-y-2">
+            <label htmlFor="businessProfileId" className="text-sm font-medium">
+              Biznes profili seçin
+            </label>
+            <select
+              id="businessProfileId"
+              className="w-full border rounded px-3 py-2 text-sm"
+              {...register("businessProfileId")}
+              disabled={isLoading || businessProfiles.length === 0}
+              defaultValue={businessProfileIdWatch || ""}
+            >
+              <option value="">Profil seçilməyib</option>
+              {businessProfiles.map((profile) => (
+                <option key={profile._id} value={profile._id}>
+                  {profile.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

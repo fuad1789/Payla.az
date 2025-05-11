@@ -95,7 +95,12 @@ export default function AdminDashboardPage() {
               Yeni Elan Əlavə Et
             </Button>
           </Link>
-
+          <Link href="/admin/business-profiles/new">
+            <Button variant="secondary">
+              <Plus className="mr-2 h-4 w-4" />
+              Yeni Biznes Profili
+            </Button>
+          </Link>
           <Button variant="outline" onClick={handleLogout}>
             Çıxış
           </Button>

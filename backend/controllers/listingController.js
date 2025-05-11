@@ -75,7 +75,14 @@ async function uploadImagesToCloudinary(files) {
 // Create a new listing (admin only)
 exports.createListing = async (req, res) => {
   try {
-    const { title, description, price, category, contactInfo } = req.body;
+    const {
+      title,
+      description,
+      price,
+      category,
+      contactInfo,
+      businessProfileId,
+    } = req.body;
 
     if (!title || !description || !price || !category || !contactInfo)
       return res.status(400).json({ message: "All fields are required" });
@@ -94,6 +101,7 @@ exports.createListing = async (req, res) => {
       category,
       images,
       contactInfo: JSON.parse(contactInfo),
+      businessProfileId: businessProfileId || null,
     });
 
     const savedListing = await newListing.save();
@@ -114,6 +122,7 @@ exports.updateListing = async (req, res) => {
       contactInfo,
       isActive,
       keepImages,
+      businessProfileId,
     } = req.body;
     const listingId = req.params.id;
 
@@ -130,6 +139,8 @@ exports.updateListing = async (req, res) => {
     if (category) listing.category = category;
     if (contactInfo) listing.contactInfo = JSON.parse(contactInfo);
     if (isActive !== undefined) listing.isActive = isActive;
+    if (typeof businessProfileId !== "undefined")
+      listing.businessProfileId = businessProfileId || null;
 
     // Yeni şəkillər varsa Cloudinary-yə yüklə
     if (req.files && req.files.length > 0) {

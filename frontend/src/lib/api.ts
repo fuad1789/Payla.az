@@ -37,6 +37,17 @@ export interface Listing {
   updatedAt: string;
 }
 
+// BusinessProfile type
+export interface BusinessProfile {
+  _id: string;
+  name: string;
+  slug: string;
+  description: string;
+  imageUrl?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // API functions
 export const api_services = {
   // Get all listings with optional filter
@@ -97,6 +108,12 @@ export const api_services = {
         Authorization: `Bearer ${token}`,
       },
     });
+    return response.data;
+  },
+
+  // Get all business profiles
+  async getBusinessProfiles() {
+    const response = await api.get<BusinessProfile[]>("/business-profiles");
     return response.data;
   },
 };

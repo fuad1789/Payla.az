@@ -7,6 +7,7 @@ const path = require("path");
 // Routes
 const listingRoutes = require("./routes/listings");
 const adminRoutes = require("./routes/admin");
+const businessProfileRoutes = require("./routes/businessProfiles");
 
 // Load environment variables
 dotenv.config();
@@ -23,6 +24,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Routes
 app.use("/api/listings", listingRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/business-profiles", businessProfileRoutes);
 
 // Root route
 app.get("/", (req, res) => {

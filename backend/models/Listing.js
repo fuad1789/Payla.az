@@ -62,6 +62,11 @@ const listingSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    businessProfileId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "BusinessProfile",
+      default: null,
+    },
   },
   {
     timestamps: true,

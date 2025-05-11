@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Payla.az v5 Frontend
 
-## Getting Started
+Bu layihə Next.js 14 App Router, TypeScript, Tailwind CSS, Shadcn UI və Radix UI istifadə edilərək hazırlanıb. SSR və React Server Components əsaslı arxitekturaya malikdir.
 
-First, run the development server:
+## Qovluq Strukturu
+
+- **src/app/** – Səhifələr və route-lar (admin, listings, favorites, contact, faq, how-it-works və s.)
+- **src/components/** – Yenilənmiş və yeni komponentlər (listing-form, swipe-page, category-filter, favorite-button və s.)
+- **src/components/ui/** – UI komponentləri (button, input, card və s.)
+- **src/lib/** – API və util funksiyaları (api.ts, utils.ts)
+
+## Əsas Xüsusiyyətlər
+
+- **Admin Panel:** CRUD əməliyyatları üçün admin dashboard, listings və business profiles idarəetməsi
+- **SSR və RSC:** React Server Components və SSR ilə performanslı data fetching
+- **Mobil və Responsiv Dizayn:** Tailwind CSS ilə tam mobil uyğunluq
+- **Form Validasiyası:** Zod ilə tip təhlükəsiz form validasiyası
+- **Error Handling:** error.tsx və not-found.tsx ilə səhv idarəetməsi
+- **Fayl Yükləmə və Şəkil Optimizasiyası:** WebP, lazy loading və s.
+- **Favoritlər və Swipe:** İstifadəçi favoritləri və swipe funksionallığı
+- **Supabase və ya digər backend inteqrasiyası üçün hazır struktur**
+
+## Quraşdırma və İşə Salma
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Brauzerdə [http://localhost:3000](http://localhost:3000) ünvanına daxil olun.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Backend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Backend Express.js ilə hazırlanıb və ayrıca `backend/README.md` faylında izah olunub.
 
-## Learn More
+## Əlaqə və Dəstək
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Əlavə suallar üçün admin panel və ya contact səhifəsindən istifadə edin.
