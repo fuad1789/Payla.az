@@ -247,4 +247,4 @@ Bu layihə [MIT lisenziyası](LICENSE) altında lisenziyalanıb.
 Əlavə suallarınız və ya təklifləriniz varsa, bizimlə əlaqə saxlayın:
 
 Email: info@paylas.az
-Telefon: +994 55 123 45 67
+Telefon: +994 70 515 74 50
