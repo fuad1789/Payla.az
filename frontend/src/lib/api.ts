@@ -35,6 +35,7 @@ export interface Listing {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  businessProfileId?: string | null;
 }
 
 // BusinessProfile type

@@ -2,7 +2,6 @@
 
 import api_services from "@/lib/api";
 import { ListingCard } from "@/components/listing-card";
-import { SwipeListingCard } from "@/components/swipe-listing-card";
 import { Listing } from "@/lib/api";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -50,12 +49,6 @@ function ListingList({ category }: ListingListProps) {
           Swipe rejimi
         </Link>
       </div>
-      {/* Mobil swipe rejimi */}
-      {isSwipeMode ? (
-        <div className="block sm:hidden">
-          <SwipeListingCard listings={listings} />
-        </div>
-      ) : null}
       {/* Normal grid rejimi */}
       <div
         className={

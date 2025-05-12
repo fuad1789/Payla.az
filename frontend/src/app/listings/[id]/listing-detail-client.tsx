@@ -12,12 +12,13 @@ import {
   Eye,
   MessageSquare,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { FavoriteButton } from "@/components/favorite-button";
 import { formatPrice } from "@/lib/utils";
-import { Listing } from "@/lib/api";
+import { Listing, BusinessProfile } from "@/lib/api";
 
 // Client component props
 interface ListingDetailClientProps {
@@ -30,6 +31,18 @@ function ImageGallery({ images }: { images: string[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [imageError, setImageError] = useState<Record<number, boolean>>({});
+  const [zoom, setZoom] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [startDrag, setStartDrag] = useState<{ x: number; y: number } | null>(
+    null
+  );
+  const [startOffset, setStartOffset] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
+  const [wasDragged, setWasDragged] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Sonraki resme git
   const nextImage = () => {
@@ -62,10 +75,98 @@ function ImageGallery({ images }: { images: string[] }) {
 
   const isExternalImage = images[currentIndex]?.startsWith("http");
 
+  // Zoom in/out toggle
+  function handleImageClick() {
+    if (wasDragged) {
+      setWasDragged(false);
+      return;
+    }
+    if (zoom === 1) {
+      setZoom(2);
+    } else {
+      setZoom(1);
+      setOffset({ x: 0, y: 0 });
+    }
+  }
+
+  // Clamp funksiyası
+  function clamp(value: number, min: number, max: number) {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+  }
+
+  // Mouse events for pan
+  function handleMouseDown(e: React.MouseEvent) {
+    if (zoom === 1) return;
+    setIsDragging(true);
+    setStartDrag({ x: e.clientX, y: e.clientY });
+    setStartOffset(offset);
+    setWasDragged(false);
+  }
+  function handleMouseMove(e: React.MouseEvent) {
+    if (!isDragging || zoom === 1 || !startDrag) return;
+    const dx = e.clientX - startDrag.x;
+    const dy = e.clientY - startDrag.y;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) setWasDragged(true);
+    let newX = startOffset.x + dx;
+    let newY = startOffset.y + dy;
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const maxX = ((zoom - 1) * rect.width) / 2;
+      const maxY = ((zoom - 1) * rect.height) / 2;
+      newX = clamp(newX, -maxX, maxX);
+      newY = clamp(newY, -maxY, maxY);
+    }
+    setOffset({ x: newX, y: newY });
+  }
+  function handleMouseUp() {
+    setIsDragging(false);
+    setStartDrag(null);
+  }
+  // Touch events for mobile pan
+  function handleTouchStart(e: React.TouchEvent) {
+    if (zoom === 1) return;
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setStartDrag({ x: touch.clientX, y: touch.clientY });
+    setStartOffset(offset);
+    setWasDragged(false);
+  }
+  function handleTouchMove(e: React.TouchEvent) {
+    if (!isDragging || zoom === 1 || !startDrag) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - startDrag.x;
+    const dy = touch.clientY - startDrag.y;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) setWasDragged(true);
+    let newX = startOffset.x + dx;
+    let newY = startOffset.y + dy;
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const maxX = ((zoom - 1) * rect.width) / 2;
+      const maxY = ((zoom - 1) * rect.height) / 2;
+      newX = clamp(newX, -maxX, maxX);
+      newY = clamp(newY, -maxY, maxY);
+    }
+    setOffset({ x: newX, y: newY });
+  }
+  function handleTouchEnd() {
+    setIsDragging(false);
+    setStartDrag(null);
+  }
+  // Reset zoom/pan on image change or gallery close
+  useEffect(
+    function () {
+      setZoom(1);
+      setOffset({ x: 0, y: 0 });
+    },
+    [currentIndex, isOpen]
+  );
+
   return (
     <>
       {/* Sadece ana resim - küçük resimler kaldırıldı */}
-      <div className="relative aspect-[4/3] h-[500px] rounded-lg overflow-hidden w-full">
+      <div className="relative aspect-[4/3] h-full rounded-lg overflow-hidden w-full">
         <Image
           src={currentImage}
           alt="Məhsul şəkili"
@@ -112,7 +213,7 @@ function ImageGallery({ images }: { images: string[] }) {
 
       {/* Tam ekran galeri */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col select-none">
           <div className="flex justify-end p-4">
             <button
               className="text-white hover:text-gray-300 transition"
@@ -123,21 +224,47 @@ function ImageGallery({ images }: { images: string[] }) {
           </div>
 
           <div className="flex-1 flex items-center justify-center relative">
-            <div className="relative h-[80vh] w-full max-w-screen-lg">
-              <Image
-                src={
-                  imageError[currentIndex]
-                    ? "/placeholder-image.svg"
-                    : images[currentIndex]
-                }
-                alt={`Şəkil ${currentIndex + 1}`}
-                fill
-                sizes="100vw"
-                className="object-contain"
-                onError={() => handleImageError(currentIndex)}
-                unoptimized={isExternalImage}
-                quality={isExternalImage ? undefined : 100}
-              />
+            <div
+              className="relative h-[80vh] w-full max-w-screen-lg flex items-center justify-center"
+              ref={containerRef}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onClick={handleImageClick}
+              style={{
+                cursor:
+                  zoom === 1 ? "zoom-in" : isDragging ? "grabbing" : "grab",
+              }}
+            >
+              <motion.div
+                animate={{
+                  scale: zoom,
+                  x: zoom === 1 ? 0 : offset.x,
+                  y: zoom === 1 ? 0 : offset.y,
+                  transition: { type: "spring", stiffness: 200, damping: 30 },
+                }}
+                style={{ width: "100%", height: "100%" }}
+              >
+                <Image
+                  src={
+                    imageError[currentIndex]
+                      ? "/placeholder-image.svg"
+                      : images[currentIndex]
+                  }
+                  alt={`Şəkil ${currentIndex + 1}`}
+                  fill
+                  sizes="100vw"
+                  className="object-contain select-none pointer-events-none"
+                  onError={() => handleImageError(currentIndex)}
+                  unoptimized={isExternalImage}
+                  quality={isExternalImage ? undefined : 100}
+                  draggable={false}
+                />
+              </motion.div>
             </div>
 
             <button
@@ -156,6 +283,12 @@ function ImageGallery({ images }: { images: string[] }) {
 
           <div className="p-4 text-center text-white">
             {currentIndex + 1} / {images.length}
+            {zoom > 1 && (
+              <span className="ml-4 text-xs bg-black/60 px-2 py-1 rounded">
+                Böyüdülmüş rejimdə: şəkli sürüşdürmək üçün mouse ilə tutub
+                çəkin, yenidən klikləyin kiçilsin
+              </span>
+            )}
           </div>
         </div>
       )}
@@ -168,6 +301,29 @@ export function ListingDetailClient({
   listing,
   category,
 }: ListingDetailClientProps) {
+  const [business, setBusiness] = useState<BusinessProfile | null>(null);
+  const [isLoadingBusiness, setIsLoadingBusiness] = useState(false);
+  const [hasBusinessError, setHasBusinessError] = useState(false);
+
+  useEffect(
+    function () {
+      if (!listing.businessProfileId) return;
+      setIsLoadingBusiness(true);
+      setHasBusinessError(false);
+      fetch("/api/business-profiles")
+        .then((res) => res.json())
+        .then((profiles: BusinessProfile[]) => {
+          const found = profiles.find(
+            (b) => b._id === listing.businessProfileId
+          );
+          setBusiness(found || null);
+        })
+        .catch(() => setHasBusinessError(true))
+        .finally(() => setIsLoadingBusiness(false));
+    },
+    [listing.businessProfileId]
+  );
+
   return (
     <div className="container py-8">
       {/* Geri butonu */}
@@ -179,12 +335,12 @@ export function ListingDetailClient({
         Bütün elanlara qayıt
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
         {/* Görsel Galerisi */}
         <ImageGallery images={listing.images} />
 
         {/* İçerik */}
-        <div className="space-y-6">
+        <div className="space-y-6 h-full">
           <div className="flex items-start justify-between gap-4">
             <h1 className="text-3xl font-bold">{listing.title}</h1>
             <FavoriteButton listingId={listing._id} />
@@ -194,6 +350,24 @@ export function ListingDetailClient({
             <span className="emoji-icon">{category?.emoji}</span>
             <span>{category?.name}</span>
           </div>
+
+          {/* Biznes məlumatı */}
+          {listing.businessProfileId && (
+            <div className="pt-2">
+              {isLoadingBusiness && <span>Biznes yüklənir...</span>}
+              {hasBusinessError && (
+                <span className="text-destructive">Biznes tapılmadı</span>
+              )}
+              {business && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Biznes:</span>
+                  <span className="font-semibold text-foreground">
+                    {business.name}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="text-2xl font-bold text-primary">
             {formatPrice(listing.price)}/gün
