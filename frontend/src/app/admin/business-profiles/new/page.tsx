@@ -33,19 +33,22 @@ export default function NewBusinessProfilePage() {
         router.push("/admin");
         return;
       }
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/business-profiles`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: form.name,
-          slug: form.slug || undefined,
-          description: form.description,
-          imageUrl: form.imageUrl || undefined,
-        }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/business-profiles`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: form.name,
+            slug: form.slug || undefined,
+            description: form.description,
+            imageUrl: form.imageUrl || undefined,
+          }),
+        }
+      );
       if (res.ok) {
         toast.success("Biznes profili əlavə olundu");
         router.push("/admin/dashboard");

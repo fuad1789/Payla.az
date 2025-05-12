@@ -81,34 +81,48 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <section className="container py-8 space-y-6 px-8 md:px-16 lg:px-24">
-      <div className="flex flex-col items-center text-center mb-8">
-        {profile.imageUrl && (
-          <Image
-            src={profile.imageUrl}
-            alt={profile.name}
-            width={160}
-            height={160}
-            className="rounded-full object-cover mb-4"
-            priority
-          />
-        )}
-        <h1 className="text-3xl font-bold mb-2">{profile.name}</h1>
-        <p className="text-gray-600 mb-2">{profile.description}</p>
-      </div>
-      <div>
-        <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between mb-4">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Elanlar</h2>
+      <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left mb-8 w-full max-w-3xl gap-6 md:gap-10">
+        <div className="relative w-28 h-28 md:w-36 md:h-36 flex-shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-white flex items-center justify-center">
+          {profile.imageUrl ? (
+            <Image
+              src={profile.imageUrl}
+              alt={profile.name}
+              fill
+              className="object-cover object-center rounded-xl"
+              priority
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-3xl text-gray-200 bg-gray-50">
+              <span>🖼️</span>
+            </div>
+          )}
         </div>
-        {typedListings.length === 0 ? (
-          <p>Bu biznes üçün elan yoxdur.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
-            {typedListings.map((listing, idx) => (
-              <ListingCard key={listing._id} listing={listing} index={idx} />
-            ))}
-          </div>
-        )}
+        <div className="flex flex-col justify-center items-center md:items-start w-full">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900">
+            {profile.name}
+          </h1>
+          <p className="text-base md:text-lg text-gray-500 mb-1 max-w-md">
+            {profile.description}
+          </p>
+        </div>
       </div>
+      <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between mb-4">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+          Elanlar
+        </h2>
+      </div>
+      {typedListings.length === 0 ? (
+        <div className="py-12 text-center">
+          <h3 className="text-lg font-semibold mb-2">Elan tapılmadı</h3>
+          <p className="text-muted-foreground">Bu biznes üçün elan yoxdur.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+          {typedListings.map((listing, idx) => (
+            <ListingCard key={listing._id} listing={listing} index={idx} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

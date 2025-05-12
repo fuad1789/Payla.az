@@ -49,6 +49,16 @@
 - 🆕 Swipe və favorit funksionallığı
 - 🆕 SSR və preload pattern
 
+## 🎨 Brend Rəngləri
+
+| Rəng                | Hex Kodu | İstifadə Sahəsi             |
+| ------------------- | -------- | --------------------------- |
+| Əsas (Primary)      | #3B82F6  | Butonlar, linklər, vurğular |
+| İkincil (Secondary) | #F59E42  | İkonlar, vurğular, fon      |
+| Qara (Dark)         | #18181B  | Başlıq, mətn, fon           |
+| Ağ (Light)          | #FFFFFF  | Fon, kartlar, mətn          |
+| Boz (Gray)          | #F4F4F5  | Səthlər, ayırıcılar         |
+
 ## 🚀 Başlama
 
 Layihəni öz kompüterinizə klonlayın və aşağıdakı addımları izləyin:
