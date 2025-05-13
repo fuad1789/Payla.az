@@ -301,29 +301,6 @@ export function ListingDetailClient({
   listing,
   category,
 }: ListingDetailClientProps) {
-  const [business, setBusiness] = useState<BusinessProfile | null>(null);
-  const [isLoadingBusiness, setIsLoadingBusiness] = useState(false);
-  const [hasBusinessError, setHasBusinessError] = useState(false);
-
-  useEffect(
-    function () {
-      if (!listing.businessProfileId) return;
-      setIsLoadingBusiness(true);
-      setHasBusinessError(false);
-      fetch("/api/business-profiles")
-        .then((res) => res.json())
-        .then((profiles: BusinessProfile[]) => {
-          const found = profiles.find(
-            (b) => b._id === listing.businessProfileId
-          );
-          setBusiness(found || null);
-        })
-        .catch(() => setHasBusinessError(true))
-        .finally(() => setIsLoadingBusiness(false));
-    },
-    [listing.businessProfileId]
-  );
-
   return (
     <div className="container py-8">
       {/* Geri butonu */}
@@ -350,24 +327,6 @@ export function ListingDetailClient({
             <span className="emoji-icon">{category?.emoji}</span>
             <span>{category?.name}</span>
           </div>
-
-          {/* Biznes məlumatı */}
-          {listing.businessProfileId && (
-            <div className="pt-2">
-              {isLoadingBusiness && <span>Biznes yüklənir...</span>}
-              {hasBusinessError && (
-                <span className="text-destructive">Biznes tapılmadı</span>
-              )}
-              {business && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>Biznes:</span>
-                  <span className="font-semibold text-foreground">
-                    {business.name}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
 
           <div className="text-2xl font-bold text-primary">
             {formatPrice(listing.price)}/gün
