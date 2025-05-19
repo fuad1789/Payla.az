@@ -101,7 +101,7 @@ export default async function Page({ params }: PageProps) {
           <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900">
             {profile.name}
           </h1>
-          <p className="text-base md:text-lg text-gray-500 mb-1 max-w-md">
+          <p className="text-base md:text-lg text-gray-500 mb-1 max-w-full md:max-w-2xl">
             {profile.description}
           </p>
         </div>
