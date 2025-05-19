@@ -286,7 +286,6 @@ function SwipeCard({
                 </g>
               </svg>
             </div>
-         
           </div>
         )}
         {(dragOverlay === "like" || showOverlay === "like") &&
